@@ -2,10 +2,10 @@
 
 #include <atomic>
 
-#include <esp_adc_cal.h>
-
 #include "RBControl_leds.hpp"
 #include "RBControl_piezo.hpp"
+
+#include <driver/adc.h>
 
 namespace rb {
 
