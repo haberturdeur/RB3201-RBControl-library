@@ -4,7 +4,7 @@
 #include <functional>
 
 #include <driver/gpio.h>
-#include <driver/pcnt.h>
+#include <driver/pulse_cnt.h>
 
 #include "RBControl_pinout.hpp"
 #include "RBControl_util.hpp"
@@ -49,6 +49,8 @@ public:
      */
     int32_t value();
 
+    void reset();
+
     /**
      * \brief Get number of edges per one second.
      * \return The number of counted edges after one second.
@@ -59,14 +61,11 @@ private:
     Encoder(Manager& man, MotorId id);
     Encoder(const Encoder&) = delete;
 
-    static void IRAM_ATTR isrGpio(void* cookie);
+    static bool IRAM_ATTR isrPcnt(pcnt_unit_handle_t, const pcnt_watch_event_data_t*, void*);
 
     void install();
 
-    void onEdgeIsr(int64_t timestamp, uint8_t pinLevel);
-    void onPcntIsr(uint32_t status);
-
-    void pcnt_init(pcnt_unit_t pcntUnit, gpio_num_t GPIO_A, gpio_num_t GPIO_B);
+    void onPcntIsr(int watchpoint, int64_t timestamp);
 
     Manager& m_manager;
     MotorId m_id;
@@ -79,19 +78,10 @@ private:
     int32_t m_target;
     int8_t m_target_direction;
     std::function<void(Encoder&)> m_target_callback;
-};
 
-/// @private
-class PcntInterruptHandler {
-public:
-    static PcntInterruptHandler& get(Manager* manager);
-
-    void enable(int index);
-
-private:
-    PcntInterruptHandler(Manager* manager);
-    ~PcntInterruptHandler();
-    static void IRAM_ATTR isrHandler(void* cookie);
+    pcnt_unit_handle_t m_pcnt_unit;
+    pcnt_channel_handle_t m_channel_a;
+    pcnt_channel_handle_t m_channel_b;
 };
 
 } // namespace rb

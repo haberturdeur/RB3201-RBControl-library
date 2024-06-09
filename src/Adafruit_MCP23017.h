@@ -14,7 +14,8 @@
 #ifndef _Adafruit_MCP23017_H_
 #define _Adafruit_MCP23017_H_
 
-#include <driver/i2c.h>
+#include "I2C.hpp"
+
 #include <mutex>
 #include <stdint.h>
 
@@ -52,10 +53,8 @@ private:
    */
     void updateRegisterBit(uint8_t p, uint8_t pValue, uint8_t portAaddr, uint8_t portBaddr);
 
-    uint8_t m_i2caddr;
-    i2c_port_t m_port;
-    gpio_num_t m_sda;
-    gpio_num_t m_scl;
+    I2C::BusHandle m_busHandle;
+    I2C::Device m_device;
 
     std::mutex m_mutex;
 };

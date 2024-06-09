@@ -1,10 +1,13 @@
 #include "RBControl_arm.hpp"
 #include "RBControl_manager.hpp"
+#include "angle.hpp"
 
 #include <math.h>
 #include <stdlib.h>
 
 namespace rb {
+
+using lx16a::operator""_rad;
 
 template <typename T>
 T Arm::roundCoord(Arm::AngleType val) {

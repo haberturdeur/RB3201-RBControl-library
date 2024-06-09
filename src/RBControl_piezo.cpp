@@ -59,7 +59,7 @@ void Piezo::setTone(uint32_t freq) {
 
     if (freq != 0) {
         uint8_t bit_num = 10;
-        uint64_t clk_freq = APB_CLK_FREQ;
+        uint64_t clk_freq = 80000000;
         clk_freq <<= 8; //div_num is 8 bit decimal
         uint32_t div_num = (clk_freq >> bit_num) / freq;
         bool apb_clk = true;
@@ -74,7 +74,7 @@ void Piezo::setTone(uint32_t freq) {
             div_num = 256; //highest clock possible
         }
 
-        ESP_LOGD("Piezo", "freq %u, apbclk %d, bit_num %d, div_num %d", freq, (int)apb_clk, (int)bit_num, (div_num));
+        ESP_LOGD("Piezo", "freq %lu, apbclk %d, bit_num %d, div_num %ld", freq, (int)apb_clk, (int)bit_num, (div_num));
 
         ledc_timer_set(LEDC_HIGH_SPEED_MODE, LEDC_TIMER_0, div_num,
             bit_num, apb_clk ? LEDC_APB_CLK : LEDC_REF_TICK);

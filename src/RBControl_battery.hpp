@@ -6,6 +6,7 @@
 #include "RBControl_piezo.hpp"
 
 #include <driver/adc.h>
+#include <esp_adc_cal.h>
 
 namespace rb {
 

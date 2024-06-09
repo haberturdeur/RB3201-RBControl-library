@@ -154,14 +154,9 @@ void Manager::processEvent(struct Manager::Event* ev) {
             m_motors_pwm.update();
         break;
     }
-    case EVENT_ENCODER_EDGE: {
-        const auto& e = ev->data.encoderEdge;
-        m_motors[static_cast<int>(e.id)]->enc()->onEdgeIsr(e.timestamp, e.pinLevel);
-        break;
-    }
     case EVENT_ENCODER_PCNT: {
         const auto& e = ev->data.encoderPcnt;
-        m_motors[static_cast<int>(e.id)]->enc()->onPcntIsr(e.status);
+        m_motors[static_cast<int>(e.id)]->enc()->onPcntIsr(e.watchpoint, e.timestamp);
         break;
     }
     }
@@ -180,8 +175,8 @@ bool Manager::motorsFailSafe() {
     return true;
 }
 
-rb::SmartServoBus& Manager::initSmartServoBus(uint8_t servo_count, gpio_num_t pin, uart_port_t uart) {
-    m_servos.install(servo_count, uart, pin);
+lx16a::SmartServoBus& Manager::initSmartServoBus(uint8_t servo_count, gpio_num_t pin, uart_port_t uart) {
+    m_servos.begin(servo_count, uart, pin);
     return m_servos;
 }
 

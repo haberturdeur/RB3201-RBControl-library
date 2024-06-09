@@ -1,6 +1,8 @@
 #include <driver/adc.h>
+#include <esp_adc_cal.h>
 #include <driver/gpio.h>
 #include <esp_log.h>
+#include <esp_sleep.h>
 
 #include "RBControl_battery.hpp"
 #include "RBControl_manager.hpp"
@@ -37,7 +39,7 @@ void Battery::install(bool disableEmergencyShutdown) {
         calibrated = true;
     }
 
-    adc1_config_width(ADC_WIDTH_12Bit);
+    adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(BATT_ADC_CHANNEL, ADC_ATTEN_DB_0);
     esp_adc_cal_value_t calibType = esp_adc_cal_characterize(BATT_ADC_UNIT,
         ADC_ATTEN_DB_0, ADC_WIDTH_BIT_12, vref, &m_adcChars);
@@ -113,7 +115,7 @@ void Battery::updateVoltage() {
     m_raw.store(adc_reading);
     m_voltageMv.store(voltage);
 
-    ESP_LOGD(TAG, "Battery is at %u mV (raw %u)", voltage, adc_reading);
+    ESP_LOGD(TAG, "Battery is at %lu mV (raw %lu)", voltage, adc_reading);
 
     // Not connected to the battery
     if (voltage < 3000) {
@@ -127,7 +129,7 @@ void Battery::updateVoltage() {
     }
 
     if (voltage <= VOLTAGE_MIN) {
-        ESP_LOGE(TAG, "Battery is at %umV (raw %u)", voltage, adc_reading);
+        ESP_LOGE(TAG, "Battery is at %lumV (raw %lu)", voltage, adc_reading);
         if (++m_undervoltedCounter >= 10) {
             if (m_emergencyShutdown)
                 shutdown();

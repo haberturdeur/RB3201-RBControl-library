@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <functional>
@@ -8,6 +9,8 @@
 #include <mutex>
 #include <vector>
 
+#include "SmartServoBus.hpp"
+
 #include "Adafruit_MCP23017.h"
 #include "RBControl_battery.hpp"
 #include "RBControl_encoder.hpp"
@@ -15,7 +18,6 @@
 #include "RBControl_motor.hpp"
 #include "RBControl_nvs.hpp"
 #include "RBControl_piezo.hpp"
-#include "RBControl_servo.hpp"
 #include "RBControl_timers.hpp"
 
 namespace rb {
@@ -49,7 +51,8 @@ inline ManagerInstallFlags operator|(ManagerInstallFlags a, ManagerInstallFlags 
 class Manager {
     friend class MotorChangeBuilder;
     friend class Encoder;
-    friend class PcntInterruptHandler;
+
+    using SmartServoBus = lx16a::SmartServoBus;
 
 public:
     Manager(Manager const&) = delete;
@@ -118,7 +121,6 @@ private:
     enum EventType {
         EVENT_MOTORS,
         EVENT_MOTORS_STOP_ALL,
-        EVENT_ENCODER_EDGE,
         EVENT_ENCODER_PCNT,
     };
 
@@ -134,14 +136,9 @@ private:
             std::vector<EventMotorsData>* motors;
 
             struct {
+                MotorId id;
+                int watchpoint;
                 int64_t timestamp;
-                MotorId id;
-                uint8_t pinLevel;
-            } encoderEdge;
-
-            struct {
-                uint32_t status;
-                MotorId id;
             } encoderPcnt;
         } data;
     };
@@ -173,7 +170,7 @@ private:
     rb::Piezo m_piezo;
     rb::Leds m_leds;
     rb::Battery m_battery;
-    rb::SmartServoBus m_servos;
+    SmartServoBus m_servos;
     rb::Nvs m_config;
 };
 
